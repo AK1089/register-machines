@@ -481,6 +481,39 @@ function createComputationControls() {
     };
 }
 
+// save the state of the machine to local storage
+function saveAll() {
+    const data = {
+        states: states,
+        registers: registers,
+        computationLog: computationLog
+    };
+    localStorage.setItem('turingMachineData', JSON.stringify(data));
+    document.getElementById('saveButton').textContent = 'Saved!';
+    setTimeout(() => {
+        document.getElementById('saveButton').textContent = 'Save';
+    }, 1000);
+}
+
+// load the state of the machine from local storage
+function loadAll() {
+    const data = JSON.parse(localStorage.getItem('turingMachineData'));
+    if (data) {
+
+        // load the states, registers, and computation log
+        states = data.states;
+        registers = data.registers;
+        computationLog = data.computationLog;
+
+        // update the interface
+        updateStateList();
+        updateRegisters();
+        createComputationControls();
+        resetComputation();
+        updateComputationLog();
+    }
+}
+
 // initialise the state list with the start and halt states and the register display
 document.getElementById('registerCount').addEventListener('input', function(e) {
     document.getElementById('registerCountDisplay').textContent = e.target.value;
@@ -495,3 +528,6 @@ updateRegisters();
 // reset and render the computation controls
 createComputationControls();
 resetComputation();
+
+// load saved data
+loadAll();

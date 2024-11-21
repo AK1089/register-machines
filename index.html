@@ -9,11 +9,11 @@
     <h1>Register Machine Simulator</h1>
     
     <div>
-        <button onclick="saveAll()">Save</button>
-        <button onclick="addState()">Add State</button>
-        <label for="registerCount">Upper Register Index (n+1): </label>
-        <input type="range" id="registerCount" min="1" max="20" value="3">
+        <button id="addStateButton" onclick="addState()">Add State</button>
+        <label for="registerCount">Upper Register Index (n+1) = </label>
         <span id="registerCountDisplay">3</span>
+        <input type="range" id="registerCount" min="1" max="20" value="3">
+        <button id="saveButton" onclick="saveAll()">Save</button>
     </div>
 
     <div class="state-list" id="stateList"></div>
