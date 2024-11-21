@@ -4,6 +4,9 @@ let states = [
     { id: 'H', label: 'Halt', instruction: null }
 ];
 
+// list of registers: each register is a string of 0s and 1s
+let registers = Array(3).fill('');
+
 // function to update the state list
 function updateStateList() {
 
@@ -194,11 +197,101 @@ function deleteState(id) {
     updateStateList();
 }
 
-// initialise the state list with the start and halt states
-document.getElementById('registerCount').addEventListener('input', function (e) {
+// function to update the register display
+function updateRegisters() {
+    const registerContainer = document.getElementById('registerContainer');
+    registerContainer.innerHTML = '';
+    
+    // get current number of registers
+    const n = parseInt(document.getElementById('registerCount').value);
+    
+    // ensure registers array matches current size
+    while (registers.length < n) {
+        registers.push('');
+    }
+    registers = registers.slice(0, n);
+    
+    // create register displays
+    registers.forEach((content, i) => {
+        const registerDiv = document.createElement('div');
+        registerDiv.className = 'register';
+        
+        // register label
+        const label = document.createElement('span');
+        label.textContent = `Register ${i}: `;
+        registerDiv.appendChild(label);
+        
+        // register content container
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'register-content';
+        
+        // create boxes for each digit
+        content.split('').forEach(digit => {
+            const box = document.createElement('div');
+            box.className = 'digit-box';
+            box.textContent = digit;
+            contentDiv.appendChild(box);
+        });
+        
+        // add empty box at the end
+        const emptyBox = document.createElement('div');
+        emptyBox.className = 'digit-box empty';
+        contentDiv.appendChild(emptyBox);
+        
+        registerDiv.appendChild(contentDiv);
+        
+        // input controls
+        const controls = document.createElement('div');
+        controls.className = 'register-controls';
+        
+        // buttons to push a 0 or 1 to the register
+        const push0 = document.createElement('button');
+        push0.textContent = 'Push 0';
+        push0.onclick = () => {
+            registers[i] += '0';
+            updateRegisters();
+        };
+        const push1 = document.createElement('button');
+        push1.textContent = 'Push 1';
+        push1.onclick = () => {
+            registers[i] += '1';
+            updateRegisters();
+        };
+        
+        // pop button
+        const pop = document.createElement('button');
+        pop.textContent = 'Pop';
+        pop.onclick = () => {
+            registers[i] = registers[i].slice(0, -1);
+            updateRegisters();
+        };
+
+        // clear button
+        const clear = document.createElement('button');
+        clear.textContent = 'Clear';
+        clear.onclick = () => {
+            registers[i] = '';
+            updateRegisters();
+        };
+
+        // add buttons to controls
+        controls.appendChild(push0);
+        controls.appendChild(push1);
+        controls.appendChild(pop);
+        controls.appendChild(clear);
+        
+        registerDiv.appendChild(controls);
+        registerContainer.appendChild(registerDiv);
+    });
+}
+
+// initialise the state list with the start and halt states and the register display
+document.getElementById('registerCount').addEventListener('input', function(e) {
     document.getElementById('registerCountDisplay').textContent = e.target.value;
     updateStateList();
+    updateRegisters();
 });
 
-// initialise the register count display
+// initialise the state list with the start and halt states and the register display
 updateStateList();
+updateRegisters();

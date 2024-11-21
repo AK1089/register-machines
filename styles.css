@@ -1,5 +1,5 @@
 body {
-    font-family: system-ui, sans-serif;
+    font-family: 'Roboto';
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
@@ -34,4 +34,42 @@ button {
 .error {
     color: red;
     margin: 5px 0;
+}
+
+.register {
+    margin: 20px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.register-content {
+    display: flex;
+    gap: 1px;
+    margin: 10px 0;
+    min-height: 30px;
+}
+
+.digit-box {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+}
+
+.digit-box.empty {
+    background: #f5f5f5;
+}
+
+.register-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.register-controls button {
+    padding: 5px 10px;
+    font-size: 0.9em;
 }
