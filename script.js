@@ -290,12 +290,198 @@ function updateRegisters() {
     });
 }
 
-// Add these style rules:
-const style = document.createElement('style');
-style.textContent = `
+// variables to keep track of the current computation state
+let currentState = 'S';
+let isPaused = true;
+let computationSpeed = 500;
+let computationInterval = null;
+let computationLog = [];
 
-`;
-document.head.appendChild(style);
+// functions to perform and control the computation
+function performComputationStep() {
+
+    // get the current state
+    const state = states.find(s => s.id === currentState);
+
+    // if the state is null or the halt state, stop the computation
+    if (!state || state.id === 'H') {
+        stopComputation();
+        addToLog('Computation halted.');
+        return false;
+    }
+
+    // get the instruction
+    const instruction = state.instruction;
+    let nextState;
+    let logMessage = `Current state: ${state.id} (${state.label}): `;
+    
+    // perform the instruction based on its type
+    switch(instruction.type) {
+
+        // add instruction: append letter to register k
+        case '+':
+            logMessage += `add ${instruction.a} to register ${instruction.k} and go to state ${instruction.q}`;
+            registers[instruction.k] += instruction.a;
+            nextState = instruction.q;
+            break;
+        
+        // check instruction: check last letter of register k
+        case '?':
+            const register = registers[instruction.k];
+            const isEmpty = register.length === 0;
+            const lastChar = isEmpty ? 'empty' : register[register.length - 1];
+
+            // if we want to check for an empty register
+            if (instruction.a === 'empty') {
+                logMessage += `check register ${instruction.k} empty `;
+
+                // if the register is empty, go to q, otherwise go to q'
+                if (isEmpty) {
+                    nextState = instruction.q;
+                    logMessage += `(yes); go to state ${instruction.q}`;
+                } else {
+                    nextState = instruction.q_prime;
+                    logMessage += `(no); go to state ${instruction.q_prime}`;
+                }
+
+            // if we want to check for a specific letter, but the register is empty
+            } else if (isEmpty) {
+                logMessage += `check register ${instruction.k} ends in ${instruction.a} (no, empty); go to state ${instruction.q_prime}`;
+                nextState = instruction.q_prime;
+
+            // if the last letter of the register matches the letter we're looking for
+            } else if (instruction.a === lastChar) {
+                logMessage += `check register ${instruction.k} ends in ${instruction.a} (yes); go to state ${instruction.q}`;
+                nextState = instruction.q;
+
+            // if the last letter of the register doesn't match the letter we're looking for
+            } else {
+                logMessage += `check register ${instruction.k} ends in ${instruction.a} (no); go to state ${instruction.q_prime}`;
+                nextState = instruction.q_prime;
+            }
+
+            break;
+        
+        // remove instruction: remove last letter from register k if non-empty
+        case '-':
+            if (registers[instruction.k].length === 0) {
+                logMessage += `remove from register ${instruction.k} (empty, so go to state ${instruction.q})`;
+                nextState = instruction.q;
+            } else {
+                logMessage += `remove from register ${instruction.k} (non-empty, so go to state ${instruction.q_prime})`;
+                registers[instruction.k] = registers[instruction.k].slice(0, -1);
+                nextState = instruction.q_prime;
+            }
+            break;
+    }
+    
+    // add the log message and update the state of the computation
+    addToLog(logMessage);
+    currentState = nextState;
+    updateRegisters();
+    updateComputationState();
+    return true;
+}
+
+// reset the computation state
+function resetComputation() {
+    currentState = 'S';
+    computationLog = [];
+    updateComputationLog();
+    updateComputationState();
+    stopComputation();
+}
+
+// run the computation on a loop
+function startComputation() {
+    isPaused = false;
+    updateComputationState();
+    computationInterval = setInterval(() => {
+        if (!performComputationStep()) {
+            stopComputation();
+        }
+    }, computationSpeed);
+}
+
+// stop the computation loop
+function stopComputation() {
+    isPaused = true;
+    updateComputationState();
+    if (computationInterval) {
+        clearInterval(computationInterval);
+        computationInterval = null;
+    }
+}
+
+// add a message to the computation log
+function addToLog(message) {
+    const timestamp = computationLog.length.toString().padStart(3, '0');
+    computationLog.push(`Step ${timestamp}: ${message}`);
+    updateComputationLog();
+}
+
+// update the computation log display
+function updateComputationLog() {
+    const logContainer = document.getElementById('computationLog');
+    logContainer.innerHTML = computationLog.map(msg => `<div>${msg}</div>`).join('');
+    logContainer.scrollTop = logContainer.scrollHeight;
+}
+
+// update the computation state display
+function updateComputationState() {
+    const state = states.find(s => s.id === currentState);
+    document.getElementById('currentState').textContent = `${currentState} (${state ? state.label : 'Unknown'})`;
+    document.getElementById('playPauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+}
+
+// create the control interface for the computation
+function createComputationControls() {
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'computation-controls';
+    controlsDiv.innerHTML = `
+        <div class="control-row">
+            <button id="resetBtn">Reset</button>
+            <button id="stepBtn">Step</button>
+            <button id="playPauseBtn">Play</button>
+            <span class="speed-control">
+                Speed: <input type="range" id="speedSlider" min="50" max="2000" value="500">
+                <span id="speedDisplay">500ms</span>
+            </span>
+        </div>
+        <div class="state-display">
+            Current State: <span id="currentState">S</span>
+        </div>
+        <div id="computationLog" class="computation-log"></div>
+    `;
+    
+    document.body.appendChild(controlsDiv);
+    
+    // add event listeners
+    document.getElementById('resetBtn').onclick = resetComputation;
+    document.getElementById('stepBtn').onclick = () => {
+        stopComputation();
+        performComputationStep();
+    };
+
+    // play/pause button
+    document.getElementById('playPauseBtn').onclick = () => {
+        if (isPaused) {
+            startComputation();
+        } else {
+            stopComputation();
+        }
+    };
+
+    // speed slider
+    document.getElementById('speedSlider').oninput = (e) => {
+        computationSpeed = parseInt(e.target.value);
+        document.getElementById('speedDisplay').textContent = `${computationSpeed}ms`;
+        if (!isPaused) {
+            stopComputation();
+            startComputation();
+        }
+    };
+}
 
 // initialise the state list with the start and halt states and the register display
 document.getElementById('registerCount').addEventListener('input', function(e) {
@@ -307,3 +493,7 @@ document.getElementById('registerCount').addEventListener('input', function(e) {
 // initialise the state list with the start and halt states and the register display
 updateStateList();
 updateRegisters();
+
+// reset and render the computation controls
+createComputationControls();
+resetComputation();

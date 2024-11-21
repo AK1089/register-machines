@@ -87,3 +87,39 @@ button {
 .clickable:hover {
     text-decoration: underline;
 }
+
+.computation-controls {
+    margin-top: 20px;
+    padding: 20px;
+    border-top: 2px solid #ccc;
+}
+
+.control-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.speed-control {
+    margin-left: 20px;
+}
+
+.computation-log {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    height: 200px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 14px;
+}
+
+.state-display {
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+input[type="range"] {
+    vertical-align: middle;
+}
