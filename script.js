@@ -216,16 +216,63 @@ function updateRegisters() {
         const registerDiv = document.createElement('div');
         registerDiv.className = 'register';
         
-        // register label
+        // header with label and controls
+        const header = document.createElement('div');
+        header.className = 'register-header';
+        
         const label = document.createElement('span');
         label.textContent = `Register ${i}: `;
-        registerDiv.appendChild(label);
+        header.appendChild(label);
         
-        // register content container
+        // create buttons as spans with click handlers
+        ['Push a 0', 'Push a 1', 'Pop', 'Clear'].forEach((text, index) => {
+            if (index > 0) {
+                const separator = document.createElement('span');
+                separator.textContent = ' / ';
+                header.appendChild(separator);
+            }
+            
+            const button = document.createElement('span');
+            button.className = 'clickable';
+            button.textContent = text;
+            
+            switch(index) {
+                case 0: // push a 0
+                    button.onclick = () => {
+                        registers[i] += '0';
+                        updateRegisters();
+                    };
+                    break;
+                case 1: // push a 1
+                    button.onclick = () => {
+                        registers[i] += '1';
+                        updateRegisters();
+                    };
+                    break;
+                case 2: // pop (remove last digit)
+                    button.onclick = () => {
+                        registers[i] = registers[i].slice(0, -1);
+                        updateRegisters();
+                    };
+                    break;
+                case 3: // clear (remove all digits)
+                    button.onclick = () => {
+                        registers[i] = '';
+                        updateRegisters();
+                    };
+                    break;
+            }
+            
+            header.appendChild(button);
+        });
+        
+        registerDiv.appendChild(header);
+        
+        // register content display
         const contentDiv = document.createElement('div');
         contentDiv.className = 'register-content';
         
-        // create boxes for each digit
+        // create a box for each digit in the register content
         content.split('').forEach(digit => {
             const box = document.createElement('div');
             box.className = 'digit-box';
@@ -233,57 +280,22 @@ function updateRegisters() {
             contentDiv.appendChild(box);
         });
         
-        // add empty box at the end
+        // create an empty box at the end
         const emptyBox = document.createElement('div');
         emptyBox.className = 'digit-box empty';
         contentDiv.appendChild(emptyBox);
         
         registerDiv.appendChild(contentDiv);
-        
-        // input controls
-        const controls = document.createElement('div');
-        controls.className = 'register-controls';
-        
-        // buttons to push a 0 or 1 to the register
-        const push0 = document.createElement('button');
-        push0.textContent = 'Push 0';
-        push0.onclick = () => {
-            registers[i] += '0';
-            updateRegisters();
-        };
-        const push1 = document.createElement('button');
-        push1.textContent = 'Push 1';
-        push1.onclick = () => {
-            registers[i] += '1';
-            updateRegisters();
-        };
-        
-        // pop button
-        const pop = document.createElement('button');
-        pop.textContent = 'Pop';
-        pop.onclick = () => {
-            registers[i] = registers[i].slice(0, -1);
-            updateRegisters();
-        };
-
-        // clear button
-        const clear = document.createElement('button');
-        clear.textContent = 'Clear';
-        clear.onclick = () => {
-            registers[i] = '';
-            updateRegisters();
-        };
-
-        // add buttons to controls
-        controls.appendChild(push0);
-        controls.appendChild(push1);
-        controls.appendChild(pop);
-        controls.appendChild(clear);
-        
-        registerDiv.appendChild(controls);
         registerContainer.appendChild(registerDiv);
     });
 }
+
+// Add these style rules:
+const style = document.createElement('style');
+style.textContent = `
+
+`;
+document.head.appendChild(style);
 
 // initialise the state list with the start and halt states and the register display
 document.getElementById('registerCount').addEventListener('input', function(e) {
