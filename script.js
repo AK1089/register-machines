@@ -34,12 +34,18 @@ function updateStateList() {
         };
         stateDiv.appendChild(labelInput);
 
+        // delete button for numeric states
+        if (!isNaN(state.id)) {
+            const deleteButton = document.createElement('span');
+            deleteButton.className = 'clickable';
+            deleteButton.textContent = 'Delete';
+            deleteButton.onclick = () => deleteState(state.id);
+            stateDiv.appendChild(deleteButton);
+        }
+
         // don't show instruction interface for halt state
         if (state.id === 'H') {
             stateDiv.appendChild(document.createElement('br'));
-            const haltLabel = document.createElement('span');
-            haltLabel.textContent = '(The Halt state has no instruction)';
-            stateDiv.appendChild(haltLabel);
             stateList.appendChild(stateDiv);
             return;
         }
@@ -81,9 +87,9 @@ function updateStateList() {
                     `;
             } else if (state.instruction.type === '?') {
                 letterSelect.innerHTML = `
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="empty">ε (empty)</option>
+                        <option value="0">ends in 0</option>
+                        <option value="1">ends in 1</option>
+                        <option value="empty">is empty (ε)</option>
                     `;
             }
             letterSelect.value = state.instruction.a;
@@ -111,14 +117,6 @@ function updateStateList() {
         });
 
         stateDiv.appendChild(instructionDiv);
-
-        // delete button for numeric states
-        if (!isNaN(state.id)) {
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete State';
-            deleteButton.onclick = () => deleteState(state.id);
-            stateDiv.appendChild(deleteButton);
-        }
 
         // add the state div to the state list
         stateList.appendChild(stateDiv);
@@ -313,14 +311,14 @@ function performComputationStep() {
     // get the instruction
     const instruction = state.instruction;
     let nextState;
-    let logMessage = `Current state: ${state.id} (${state.label}): `;
+    let logMessage = `Current state: ${state.id} (${state.label}) - `;
     
     // perform the instruction based on its type
     switch(instruction.type) {
 
         // add instruction: append letter to register k
         case '+':
-            logMessage += `add ${instruction.a} to register ${instruction.k} and go to state ${instruction.q}`;
+            logMessage += `add ${instruction.a} to register ${instruction.k} and go to state ${instruction.q}.`;
             registers[instruction.k] += instruction.a;
             nextState = instruction.q;
             break;
@@ -346,17 +344,17 @@ function performComputationStep() {
 
             // if we want to check for a specific letter, but the register is empty
             } else if (isEmpty) {
-                logMessage += `check register ${instruction.k} ends in ${instruction.a} (no, empty); go to state ${instruction.q_prime}`;
+                logMessage += `check register ${instruction.k} ends in ${instruction.a} (no, empty); go to state ${instruction.q_prime}.`;
                 nextState = instruction.q_prime;
 
             // if the last letter of the register matches the letter we're looking for
             } else if (instruction.a === lastChar) {
-                logMessage += `check register ${instruction.k} ends in ${instruction.a} (yes); go to state ${instruction.q}`;
+                logMessage += `check register ${instruction.k} ends in ${instruction.a} (yes); go to state ${instruction.q}.`;
                 nextState = instruction.q;
 
             // if the last letter of the register doesn't match the letter we're looking for
             } else {
-                logMessage += `check register ${instruction.k} ends in ${instruction.a} (no); go to state ${instruction.q_prime}`;
+                logMessage += `check register ${instruction.k} ends in ${instruction.a} (no); go to state ${instruction.q_prime}.`;
                 nextState = instruction.q_prime;
             }
 
@@ -365,10 +363,10 @@ function performComputationStep() {
         // remove instruction: remove last letter from register k if non-empty
         case '-':
             if (registers[instruction.k].length === 0) {
-                logMessage += `remove from register ${instruction.k} (empty, so go to state ${instruction.q})`;
+                logMessage += `remove from register ${instruction.k} (empty, so go to state ${instruction.q}).`;
                 nextState = instruction.q;
             } else {
-                logMessage += `remove from register ${instruction.k} (non-empty, so go to state ${instruction.q_prime})`;
+                logMessage += `remove from register ${instruction.k} (non-empty, so go to state ${instruction.q_prime}).`;
                 registers[instruction.k] = registers[instruction.k].slice(0, -1);
                 nextState = instruction.q_prime;
             }
@@ -415,7 +413,7 @@ function stopComputation() {
 
 // add a message to the computation log
 function addToLog(message) {
-    const timestamp = computationLog.length.toString().padStart(3, '0');
+    const timestamp = (computationLog.length + 1).toString().padStart(3, '0');
     computationLog.push(`Step ${timestamp}: ${message}`);
     updateComputationLog();
 }
