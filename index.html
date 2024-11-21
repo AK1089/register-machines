@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register Machines</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Register Machine Definition</h1>
+    
+    <div>
+        <label for="registerCount">Upper Register Index (n+1): </label>
+        <input type="range" id="registerCount" min="1" max="20" value="3">
+        <span id="registerCountDisplay">3</span>
+    </div>
+
+    <div class="state-list" id="stateList">
+        <!-- States will be added here -->
+    </div>
+
+    <button onclick="addState()">Add State</button>
+
+    <script src="script.js"></script>
+</body>
+</html>
