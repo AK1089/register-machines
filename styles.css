@@ -155,4 +155,5 @@ button:hover {
 
 input[type="range"] {
     vertical-align: middle;
+    width: 200px;
 }
