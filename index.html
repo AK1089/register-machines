@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Register Machines</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <h1>Register Machine Simulator</h1>
-    
+
     <div>
         <button id="addStateButton" onclick="addState()">Add State</button>
         <label for="registerCount">Upper Register Index (n+1) = </label>
-        <span id="registerCountDisplay">3</span>
+        <span id="registerCountDisplay" style="display: inline-block; width: 20px; text-align: right;">3</span>
         <input type="range" id="registerCount" min="1" max="20" value="3">
         <button id="saveButton" onclick="saveAll()">Save</button>
     </div>
@@ -21,4 +23,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>

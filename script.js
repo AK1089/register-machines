@@ -508,7 +508,6 @@ function loadAll() {
         // update the interface
         updateStateList();
         updateRegisters();
-        createComputationControls();
         resetComputation();
         updateComputationLog();
     }
